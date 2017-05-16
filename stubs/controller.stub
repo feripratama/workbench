@@ -11,10 +11,10 @@ use {{vendor}}\{{name}}\Facades\{{name}};
  * @package {{vendor}}\{{name}}\Http\Controllers
  * @author {{author}} <{{email}}>
  */
-class DemoController extends Controller {
-
-	public function demo() {
-		return {{name}}::welcome();
-	}
-
+class DemoController extends Controller
+{
+    public function demo()
+    {
+        return {{name}}::welcome();
+    }
 }
