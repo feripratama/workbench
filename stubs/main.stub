@@ -8,7 +8,8 @@
  */
 class {{name}}
 {
-    public function welcome() {
+    public function welcome()
+    {
         return 'Welcome to {{vendor}}\{{name}} package';
     }
 }
