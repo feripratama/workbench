@@ -8,97 +8,96 @@ use Illuminate\Support\ServiceProvider;
  * @package {{vendor}}\{{name}}
  * @author {{author}} <{{email}}>
  */
-class {{name}}ServiceProvider extends ServiceProvider {
+class {{name}}ServiceProvider extends ServiceProvider
+{
 
-	/**
-	 * Indicates if loading of the provider is deferred.
-	 *
-	 * @var bool
-	 */
-	protected $defer = false;
+    /**
+     * Indicates if loading of the provider is deferred.
+     *
+     * @var bool
+     */
+    protected $defer = false;
 
-	/**
-	 * Bootstrap the application events.
-	 *
-	 * @return void
-	 */
-	public function boot()
-	{
-		$packageRoutesPath       = __DIR__ . '/Http/routes.php';
-		$packageConfigPath       = __DIR__ . '/../../config/config.php';
-		$packageMigrationsPath   = __DIR__ . '/../../migrations';
-		$packageAssetsPath       = __DIR__ . '/../../resources/assets';
-		$packageTranslationsPath = __DIR__ . '/../../resources/lang';
-		$packageViewsPath        = __DIR__ . '/../../resources/views';
+    /**
+     * Bootstrap the application events.
+     *
+     * @return void
+     */
+    public function boot()
+    {
+        $packageRoutesPath       = __DIR__ . '/Http/routes.php';
+        $packageConfigPath       = __DIR__ . '/../../config/config.php';
+        $packageMigrationsPath   = __DIR__ . '/../../migrations';
+        $packageAssetsPath       = __DIR__ . '/../../resources/assets';
+        $packageTranslationsPath = __DIR__ . '/../../resources/lang';
+        $packageViewsPath        = __DIR__ . '/../../resources/views';
 
-		/**
-		 * Loading package's routes and controllers
-		 */
-		include $packageRoutesPath;
+        /**
+         * Loading package's routes and controllers
+         */
+        include $packageRoutesPath;
 
-		/**
-		 * Publishing package's config
-		 */
-		$config = config_path('{{lower_name}}.php');
+        /**
+         * Publishing package's config
+         */
+        $config = config_path('{{lower_name}}.php');
 
-		if (file_exists($config)) {
-			$this->mergeConfigFrom($packageConfigPath, '{{lower_name}}');
-		}
+        if (file_exists($config)) {
+            $this->mergeConfigFrom($packageConfigPath, '{{lower_name}}');
+        }
 
-		$this->publishes([
-			$packageConfigPath => $config,
-		], 'config');
+        $this->publishes([
+            $packageConfigPath => $config,
+        ], 'config');
 
-		/**
-		 * Loading package's translations
-		 */
-		$this->loadTranslationsFrom($packageTranslationsPath, '{{lower_name}}');
+        /**
+         * Loading package's translations
+         */
+        $this->loadTranslationsFrom($packageTranslationsPath, '{{lower_name}}');
 
-		/**
-		 * Loading and publishing package's views
-		 */
-		$this->loadViewsFrom($packageViewsPath, '{{lower_name}}');
+        /**
+         * Loading and publishing package's views
+         */
+        $this->loadViewsFrom($packageViewsPath, '{{lower_name}}');
 
-		$this->publishes([
-			$packageViewsPath => base_path('resources/views/vendor/{{lower_name}}'),
-		], 'views');
+        $this->publishes([
+            $packageViewsPath => base_path('resources/views/vendor/{{lower_name}}'),
+        ], 'views');
 
-		/**
-		 * Publishing package's assets (JavaScript, CSS, images...)
-		 */
-		$this->publishes([
-		    $packageAssetsPath => public_path('vendor/{{lower_name}}'),
-		], 'public');
+        /**
+         * Publishing package's assets (JavaScript, CSS, images...)
+         */
+        $this->publishes([
+            $packageAssetsPath => public_path('vendor/{{lower_name}}'),
+        ], 'public');
 
-		/**
-		 * Publishing package's migrations
-		 */
-		$this->publishes([
-		    $packageMigrationsPath => database_path('/migrations')
-		], 'migrations');
-	}
+        /**
+         * Publishing package's migrations
+         */
+        $this->publishes([
+            $packageMigrationsPath => database_path('/migrations')
+        ], 'migrations');
+    }
 
-	/**
-	 * Register the service provider.
-	 *
-	 * @return void
-	 */
-	public function register()
-	{
-		$this->app->singleton('{{lower_name}}', function($app)
-		{
-			return new {{name}};
-		});
-	}
+    /**
+     * Register the service provider.
+     *
+     * @return void
+     */
+    public function register()
+    {
+        $this->app->singleton('{{lower_name}}', function ($app) {
+            return new {{name}};
+        });
+    }
 
-	/**
-	 * Get the services provided by the provider.
-	 *
-	 * @return array
-	 */
-	public function provides()
-	{
-		return ['{{lower_name}}'];
-	}
-
+    /**
+     * Get the services provided by the provider.
+     *
+     * @return array
+     */
+    public function provides()
+    {
+        return ['{{lower_name}}'];
+    }
 }
