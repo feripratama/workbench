@@ -40,14 +40,12 @@ class {{name}}ServiceProvider extends ServiceProvider
         /**
          * Publishing package's config
          */
-        $config = config_path('{{lower_name}}.php');
+        $appConfigPath = config_path('{{lower_name}}.php');
 
-        if (file_exists($config)) {
-            $this->mergeConfigFrom($packageConfigPath, '{{lower_name}}');
-        }
+        $this->mergeConfigFrom($packageConfigPath, '{{lower_name}}');
 
         $this->publishes([
-            $packageConfigPath => $config,
+            $packageConfigPath => $appConfigPath,
         ], 'config');
 
         /**
