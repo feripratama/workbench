@@ -1,0 +1,17 @@
+
+    /**
+     * Loading and publishing package's views
+     *
+     * @return void
+     */
+    protected function viewHandle()
+    {
+        $packageViewsPath = __DIR__.'/{{@callback
+            return $this->getRelativePath($this->namespaceDirPath, $this->resourceDirsPath["view"]);
+        @end}}';
+        $this->loadViewsFrom($packageViewsPath, '{{lower_name}}');
+
+        $this->publishes([
+            $packageViewsPath => base_path('resources/views/vendor/{{lower_name}}'),
+        ], 'views');
+    }

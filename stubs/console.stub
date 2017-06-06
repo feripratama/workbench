@@ -1,0 +1,79 @@
+<?php namespace {{vendor}}\{{name}}{{@callback
+        $namespaceSuffix = str_replace("/", "\\", $this->getRelativePath($this->namespaceDirPath, $this->resourceDirsPath["console"]));
+        if (!empty($namespaceSuffix)) {
+            $namespaceSuffix = "\\".$namespaceSuffix;
+        }
+        return $namespaceSuffix;
+    @end}};
+
+use Illuminate\Console\Command;
+use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Input\InputArgument;
+
+/**
+ * The {{@callback
+        return rtrim($this->buildResourceFileName("console"), '.php');
+    @end}} class.
+ *
+ * @package {{vendor}}\{{name}}
+ * @author  {{author}} <{{email}}>
+ */
+class {{@callback
+        return rtrim($this->buildResourceFileName("console"), '.php');
+    @end}} extends Command
+{
+
+    /**
+     * The console command name.
+     *
+     * @var string
+     */
+    protected $name = '{{lower_vendor}}:{{lower_name}}';
+
+    /**
+     * The console command description.
+     *
+     * @var string
+     */
+    protected $description = 'Demo command for {{vendor}}\{{name}} package';
+
+    /**
+     * Create a new command instance.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        parent::__construct();
+    }
+
+    /**
+     * Execute the console command.
+     *
+     * @return mixed
+     */
+    public function fire()
+    {
+        $this->info('Welcome to command for {{vendor}}\{{name}} package');
+    }
+
+    /**
+     * Get the console command arguments.
+     *
+     * @return array
+     */
+    protected function getArguments()
+    {
+        return [];
+    }
+
+    /**
+     * Get the console command options.
+     *
+     * @return array
+     */
+    protected function getOptions()
+    {
+        return [];
+    }
+}

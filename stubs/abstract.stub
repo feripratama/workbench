@@ -1,0 +1,22 @@
+<?php namespace {{vendor}}\{{name}}{{@callback
+        $namespaceSuffix = str_replace("/", "\\", $this->getRelativePath($this->namespaceDirPath, $this->resourceDirsPath["abstract"]));
+        if (!empty($namespaceSuffix)) {
+            $namespaceSuffix = "\\".$namespaceSuffix;
+        }
+        return $namespaceSuffix;
+    @end}};
+
+/**
+ * The {{@callback
+        return rtrim($this->buildResourceFileName("abstract"), '.php');
+    @end}} class
+ *
+ * @package {{vendor}}\{{name}}
+ * @author  {{author}} <{{email}}>
+ */
+abstract class {{@callback
+        return rtrim($this->buildResourceFileName("abstract"), '.php');
+    @end}}
+{
+    //
+}

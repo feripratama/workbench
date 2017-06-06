@@ -1,10 +1,10 @@
 <?php namespace {{vendor}}\{{name}};
 
 /**
- * The {{name}} facade.
+ * The {{name}} class.
  *
  * @package {{vendor}}\{{name}}
- * @author {{author}} <{{email}}>
+ * @author  {{author}} <{{email}}>
  */
 class {{name}}
 {

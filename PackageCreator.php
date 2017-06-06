@@ -1,6 +1,7 @@
 <?php namespace Jackiedo\Workbench;
 
 use Illuminate\Filesystem\Filesystem;
+use Exception;
 
 class PackageCreator
 {
@@ -13,33 +14,88 @@ class PackageCreator
     protected $files;
 
     /**
+     * The package instance
+     *
+     * @var \Jackiedo\Workbench\Package
+     */
+    protected $package;
+
+    /**
+     * Flag to determine package is plain or not
+     *
+     * @var boolean
+     */
+    protected $plain = true;
+
+    /**
+     * Flag to determine pointing namespace of package
+     * into src/vendor/name directory
+     *
+     * @var boolean
+     */
+    protected $pointNsToSimilarDir = false;
+
+    /**
+     * Workbench directory path
+     *
+     * @var string
+     */
+    protected $workbenchDirPath;
+
+    /**
+     * Package directory path
+     *
+     * @var string
+     */
+    protected $packageDirPath;
+
+    /**
+     * Primary src directory path
+     *
+     * @var string
+     */
+    protected $srcDirPath;
+
+    /**
+     * Primary namespace directory path
+     *
+     * @var string
+     */
+    protected $namespaceDirPath;
+
+    /**
+     * Path to resource directories
+     *
+     * @var array
+     */
+    protected $resourceDirsPath = [];
+
+    /**
      * The basic building blocks of the package.
      *
      * @param  array
      */
-    protected $basicBlocks = array(
-        'SupportFiles',
+    protected $basicBlocks = [
+        'BasicFiles',
         'TestDirectory',
-        'ServiceProvider',
-    );
+    ];
 
     /**
      * The building blocks of the package.
      *
      * @param  array
      */
-    protected $blocks = array(
-        'SupportFiles',
-        'SupportDirectories',
+    protected $blocks = [
+        'BasicFiles',
         'TestDirectory',
-        'ServiceProvider',
-        'SourceClassDirectories'
-    );
+        'ResourceDirectories',
+    ];
 
     /**
      * Create a new package creator instance.
      *
      * @param  \Illuminate\Filesystem\Filesystem  $files
+     *
      * @return void
      */
     public function __construct(Filesystem $files)
@@ -48,298 +104,272 @@ class PackageCreator
     }
 
     /**
-     * Create a new package stub.
+     * Create a new package.
      *
      * @param  \Jackiedo\Workbench\Package  $package
-     * @param  string  $path
-     * @param  bool    $plain
+     * @param  string   $path
+     * @param  array    $withResources
+     * @param  boolean  $pointNsToSimilarDir
+     *
      * @return string
      */
-    public function create(Package $package, $path, $plain = true)
+    public function create(Package $package, $path, $withResources = [], $pointNsToSimilarDir = true)
     {
-        $directory = $this->createDirectory($package, $path);
+        $this->package = $package;
+        $this->workbenchDirPath = $path;
+        $this->plain = (count($withResources) == 0) ? true : false;
+        $this->pointNsToSimilarDir = $pointNsToSimilarDir;
 
-        // To create the package, we will spin through a list of building blocks that
-        // make up each package. We'll then call the method to build that block on
-        // the class, which keeps the actual building of stuff nice and cleaned.
-        foreach ($this->getBlocks($plain) as $block) {
-            $this->{"write{$block}"}($package, $directory, $plain);
+        $this->packageDirPath = $this->createPackageDir();
+        $this->srcDirPath = $this->createSrcDir();
+        $this->namespaceDirPath = $this->createNamespaceDir();
+        $this->resourceDirsPath = $this->buildResourceDirsPath($withResources);
+
+        // To create the package, we will spin through a list of building blocks
+        // that make up package. We'll then call the method to build that block
+        // on this class, which keeps the actual building of stuff nice and
+        // cleaned.
+        foreach ($this->getBlocks() as $block) {
+            $this->{"write{$block}"}();
         }
 
-        return $directory;
+        return $this->packageDirPath;
     }
 
     /**
-     * Create a package with all resource directories.
+     * Build paths to resource directories
      *
-     * @param  \Jackiedo\Workbench\Package  $package
-     * @param  string  $path
-     * @return void
+     * @param  array $resources
+     *
+     * @return array
      */
-    public function createWithResources(Package $package, $path)
+    protected function buildResourceDirsPath($resources)
     {
-        return $this->create($package, $path, false);
+        $namespaceResources = $this->filterNamespaceResources($resources);
+        $noneNamespaceResources = $this->filterNoneNamespaceResources($resources);
+
+        $resourceDirsPath = [];
+
+        foreach ($noneNamespaceResources as $type => $path) {
+            $resourceDirsPath[$type] = $this->srcDirPath.'/'.$path;
+        }
+
+        foreach ($namespaceResources as $type => $path) {
+            $resourceDirsPath[$type] = $this->namespaceDirPath.'/'.$path;
+        }
+
+        return $resourceDirsPath;
+    }
+
+    /**
+     * Filter unused namespace resources from all resources.
+     *
+     * @param  array $resources
+     *
+     * @return array
+     */
+    protected function filterNoneNamespaceResources($resources = [])
+    {
+        if (count($resources) == 0) {
+            return $resources;
+        }
+
+        return array_filter($this->package->getNoneNamespaceResources(), function ($key) use ($resources) {
+            return in_array($key, $resources);
+        }, ARRAY_FILTER_USE_KEY);
+    }
+
+    /**
+     * Filter used namespace resources from all resources.
+     *
+     * @param  array $resources
+     *
+     * @return array
+     */
+    protected function filterNamespaceResources($resources = [])
+    {
+        if (count($resources) == 0) {
+            return $resources;
+        }
+
+        return array_filter($this->package->getNamespaceResources(), function ($key) use ($resources) {
+            return in_array($key, $resources);
+        }, ARRAY_FILTER_USE_KEY);
     }
 
     /**
      * Get the blocks for a given package.
      *
-     * @param  bool $plain
      * @return array
      */
-    protected function getBlocks($plain)
+    protected function getBlocks()
     {
-        return $plain ? $this->basicBlocks : $this->blocks;
+        return $this->plain ? $this->basicBlocks : $this->blocks;
     }
 
     /**
-     * Write the support files to the package root.
+     * Write the basic files to the package root.
      *
-     * @param  \Jackiedo\Workbench\Package  $package
-     * @param  string  $directory
-     * @param  bool    $plain
      * @return void
      */
-    public function writeSupportFiles(Package $package, $directory, $plain)
+    protected function writeBasicFiles()
     {
-        foreach (array('PhpUnit', 'Travis', 'Composer', 'Ignore') as $file) {
-            $this->{"write{$file}File"}($package, $directory, $plain);
+        foreach (array('PhpUnit', 'Travis', 'Composer', 'PrimaryClass', 'ServiceProvider', 'Ignore') as $file) {
+            $this->{"write{$file}File"}();
         }
     }
 
     /**
      * Write the PHPUnit stub file.
      *
-     * @param  \Jackiedo\Workbench\Package  $package
-     * @param  string  $directory
      * @return void
      */
-    protected function writePhpUnitFile(Package $package, $directory)
+    protected function writePhpUnitFile()
     {
-        $stub = __DIR__.'/stubs/phpunit.xml';
+        $stub = __DIR__.'/stubs/phpunit.stub';
 
-        $this->files->copy($stub, $directory.'/phpunit.xml');
+        $this->files->copy($stub, $this->packageDirPath.'/phpunit.xml');
     }
 
     /**
      * Write the Travis stub file.
      *
-     * @param  \Jackiedo\Workbench\Package  $package
-     * @param  string  $directory
      * @return void
      */
-    protected function writeTravisFile(Package $package, $directory)
+    protected function writeTravisFile()
     {
-        $stub = __DIR__.'/stubs/.travis.yml';
+        $stub = __DIR__.'/stubs/travis.stub';
 
-        $this->files->copy($stub, $directory.'/.travis.yml');
+        $this->files->copy($stub, $this->packageDirPath.'/.travis.yml');
     }
 
     /**
-     * Write the Composer.json stub file.
+     * Write the composer.json stub file.
      *
-     * @param  \Jackiedo\Workbench\Package  $package
-     * @param  string  $directory
-     * @param  bool    $plain
      * @return void
      */
-    protected function writeComposerFile(Package $package, $directory, $plain)
+    protected function writeComposerFile()
     {
-        $stub = $this->getComposerStub($plain);
+        $stub = $this->files->get(__DIR__.'/stubs/composer.stub');
 
-        $stub = $this->formatPackageStub($package, $stub);
+        $stub = $this->formatPackageStub($stub);
 
-        $this->files->put($directory.'/composer.json', $stub);
+        $this->files->put($this->packageDirPath.'/composer.json', $stub);
     }
 
     /**
-     * Get the Composer.json stub file contents.
+     * Write main source file for package
      *
-     * @param  bool  $plain
-     * @return string
-     */
-    protected function getComposerStub($plain)
-    {
-        if ($plain) {
-            return $this->files->get(__DIR__.'/stubs/plain.composer.json');
-        }
-
-        return $this->files->get(__DIR__.'/stubs/composer.json');
-    }
-
-    /**
-     * Write the stub .gitignore file for the package.
-     *
-     * @param  \Jackiedo\Workbench\Package  $package
-     * @param  string  $directory
-     * @param  bool    $plain
      * @return void
      */
-    public function writeIgnoreFile(Package $package, $directory, $plain)
+    protected function writePrimaryClassFile()
     {
-        $this->files->copy(__DIR__.'/stubs/gitignore.txt', $directory.'/.gitignore');
-    }
+        $content = $this->formatPackageStub($this->files->get(__DIR__.'/stubs/main.stub'));
 
-    /**
-     * Create the support directories for a package.
-     *
-     * @param  \Jackiedo\Workbench\Package  $package
-     * @param  string  $directory
-     * @return void
-     */
-    public function writeSupportDirectories(Package $package, $directory)
-    {
-        $supports = array(
-            'config',
-            'migrations',
-            'resources/assets',
-            'resources/lang',
-            'resources/views'
-        );
-
-        foreach ($supports as $support) {
-            $this->writeSupportDirectory($package, $support, $directory);
-        }
-    }
-
-    /**
-     * Write a specific support directory for the package.
-     *
-     * @param  \Jackiedo\Workbench\Package  $package
-     * @param  string  $support
-     * @param  string  $directory
-     * @return void
-     */
-    protected function writeSupportDirectory(Package $package, $support, $directory)
-    {
-        // Once we create the source directory, we will write an empty file to the
-        // directory so that it will be kept in source control allowing the dev
-        // to go ahead and push these components to GitHub right on creation.
-        $path = $directory.'/src/'.$support;
-
-        $this->files->makeDirectory($path, 0777, true);
-
-        $this->files->put($path.'/.gitkeep', '');
-
-        switch ($support) {
-            case 'config':
-                $content = $this->formatPackageStub($package, $this->files->get(__DIR__.'/stubs/config.stub'));
-                $this->files->put($path.'/config.php', $content);
-                break;
-
-            default:
-                break;
-        }
-    }
-
-    /**
-     * Create the public directory for the package.
-     *
-     * @param  \Jackiedo\Workbench\Package  $package
-     * @param  string  $directory
-     * @param  bool    $plain
-     * @return void
-     */
-    public function writePublicDirectory(Package $package, $directory, $plain)
-    {
-        if ($plain) {
-            return;
-        }
-
-        $this->files->makeDirectory($directory.'/public');
-
-        $this->files->put($directory.'/public/.gitkeep', '');
-    }
-
-    /**
-     * Create the test directory for the package.
-     *
-     * @param  \Jackiedo\Workbench\Package  $package
-     * @param  string  $directory
-     * @return void
-     */
-    public function writeTestDirectory(Package $package, $directory)
-    {
-        $this->files->makeDirectory($directory.'/tests');
-
-        $this->files->put($directory.'/tests/.gitkeep', '');
+        $this->files->put($this->namespaceDirPath.'/'.$this->package->name.'.php', $content);
     }
 
     /**
      * Write the stub ServiceProvider for the package.
      *
-     * @param  \Jackiedo\Workbench\Package  $package
-     * @param  string  $directory
-     * @param  bool    $plain
      * @return void
      */
-    public function writeServiceProvider(Package $package, $directory, $plain)
+    protected function writeServiceProviderFile()
     {
-        // Once we have the service provider stub, we will need to format it and make
-        // the necessary replacements to the class, namespaces, etc. Then we'll be
-        // able to write it out into the package's workbench directory for them.
-        $stub = $this->getProviderStub($package, $plain);
+        // Once we have the service provider stub file, we will need to format it
+        // and make the necessary replacements to the class, namespaces, etc.
+        // Then we'll be able to write it out into the package's workbench
+        // directory for them.
+        $stub = $this->files->get(__DIR__.'/stubs/provider.stub');
 
-        $this->writeProviderStub($package, $directory, $stub);
+        $stub = $this->formatPackageStub($stub);
+
+        $this->files->put($this->namespaceDirPath.'/'.$this->package->name.'ServiceProvider.php', $stub);
     }
 
     /**
-     * Write the service provider stub for the package.
+     * Write the stub .gitignore file for the package.
      *
-     * @param  \Jackiedo\Workbench\Package  $package
-     * @param  string  $directory
-     * @param  string  $stub
      * @return void
      */
-    protected function writeProviderStub(Package $package, $directory, $stub)
+    protected function writeIgnoreFile()
     {
-        $path = $this->createClassDirectory($package, $directory);
-
-        // The primary source directory where the package's classes will live may not
-        // exist yet, so we will need to create it before we write these providers
-        // out to that location. We'll go ahead and create now here before then.
-        $file = $path.'/'.$package->name.'ServiceProvider.php';
-
-        $this->files->put($file, $stub);
+        $this->files->copy(__DIR__.'/stubs/gitignore.stub', $this->packageDirPath.'/.gitignore');
     }
 
     /**
-     * Get the stub for a ServiceProvider.
+     * Create the test directory for the package.
      *
-     * @param  \Jackiedo\Workbench\Package  $package
-     * @param  bool  $plain
-     * @return string
+     * @return void
      */
-    protected function getProviderStub(Package $package, $plain)
+    protected function writeTestDirectory()
     {
-        return $this->formatPackageStub($package, $this->getProviderFile($plain));
+        $this->files->makeDirectory($this->packageDirPath.'/tests');
+
+        $this->files->put($this->packageDirPath.'/tests/.gitkeep', '');
     }
 
     /**
-     * Load the raw service provider file.
+     * Create the resources directories for a package
+     * and write same featured file to this directory
      *
-     * @param  bool  $plain
+     * @return void
+     */
+    protected function writeResourceDirectories()
+    {
+        foreach ($this->resourceDirsPath as $resourceType => $resourcePath) {
+            if (! $this->files->isDirectory($resourcePath)) {
+                $this->files->makeDirectory($resourcePath, 0777, true);
+            }
+
+            // Once we create the resource directory, we will write one file that
+            // have same feature from stub file to the directory. If stub file is
+            // not exists, we will use an empty file so that this directory will be
+            // kept in source control allowing the dev to go ahead and push
+            // these components to GitHub right on creation.
+            if ($this->files->exists(__DIR__.'/stubs/'.$resourceType.'.stub')) {
+                $stub = $this->files->get(__DIR__.'/stubs/'.$resourceType.'.stub');
+
+                $stub = $this->formatPackageStub($stub);
+
+                $this->files->put($this->buildResourceFilePath($resourceType), $stub);
+            } else {
+                $this->files->put($resourcePath.'/.gitkeep', '');
+            }
+        }
+    }
+
+    /**
+     * Create a directory for the package.
+     *
+     * @throws \InvalidArgumentException
+     *
      * @return string
      */
-    protected function getProviderFile($plain)
+    protected function createPackageDir()
     {
-        if ($plain) {
-            return $this->files->get(__DIR__.'/stubs/plain.provider.stub');
+        $path = $this->buildPackageDirPath();
+
+        // If the directory doesn't exist, we will go ahead and create the package
+        // directory in the workbench location. We will use this entire package
+        // name when creating the directory to avoid any potential conflicts.
+        if (! $this->files->isDirectory($path)) {
+            $this->files->makeDirectory($path, 0777, true);
+
+            return $path;
         }
 
-        return $this->files->get(__DIR__.'/stubs/provider.stub');
+        throw new \InvalidArgumentException("Package exists.");
     }
 
     /**
      * Create the main source directory for the package.
      *
-     * @param  \Jackiedo\Workbench\Package  $package
-     * @param  string  $directory
      * @return string
      */
-    protected function createClassDirectory(Package $package, $directory)
+    protected function createSrcDir()
     {
-        $path = $directory.'/src/'.$package->vendor.'/'.$package->name;
+        $path = $this->buildSrcDirPath();
 
         if (! $this->files->isDirectory($path)) {
             $this->files->makeDirectory($path, 0777, true);
@@ -349,125 +379,241 @@ class PackageCreator
     }
 
     /**
-     * Format a generic package stub file.
+     * Create the main namespace directory for the package.
      *
-     * @param  \Jackiedo\Workbench\Package  $package
-     * @param  string  $stub
      * @return string
      */
-    protected function formatPackageStub(Package $package, $stub)
+    protected function createNamespaceDir()
     {
-        foreach (get_object_vars($package) as $key => $value) {
+        $path = $this->buildNamespaceDirPath();
+
+        if (! $this->files->isDirectory($path)) {
+            $this->files->makeDirectory($path, 0777, true);
+        }
+
+        return $path;
+    }
+
+    /**
+     * Get path to package directory
+     *
+     * @return string
+     */
+    protected function buildPackageDirPath()
+    {
+        return $this->workbenchDirPath.'/'.$this->package->getFullName();
+    }
+
+    /**
+     * Get path to primary src directory
+     *
+     * @return string
+     */
+    protected function buildSrcDirPath()
+    {
+        return $this->buildPackageDirPath().'/src';
+    }
+
+    /**
+     * Get path to primary namespace directory
+     *
+     * @return string
+     */
+    protected function buildNamespaceDirPath()
+    {
+        if ($this->pointNsToSimilarDir) {
+            return $this->buildSrcDirPath().'/'.$this->package->vendor.'/'.$this->package->name;
+        }
+
+        return $this->buildSrcDirPath();
+    }
+
+    /**
+     * Create path to resource file
+     *
+     * @param  string $resourceType
+     *
+     * @return void
+     */
+    protected function buildResourceFilePath($resourceType)
+    {
+        $path = $this->resourceDirsPath[$resourceType];
+
+        switch ($resourceType) {
+            case 'lang':
+                $localePath = $path.'/en';
+                if (! $this->files->isDirectory($localePath)) {
+                    $this->files->makeDirectory($localePath, 0777, true);
+                }
+
+                return $localePath.'/'.$this->buildResourceFileName('lang');
+                break;
+
+            default:
+                return $path.'/'.$this->buildResourceFileName($resourceType);
+                break;
+        }
+    }
+
+    /**
+     * Format resource filename
+     *
+     * @param  string $resourceType
+     *
+     * @return string
+     */
+    protected function buildResourceFileName($resourceType)
+    {
+        switch ($resourceType) {
+            case 'config':
+                return 'config.php';
+                break;
+
+            case 'migration':
+                return date('Y_m_d_His').'_create_'.$this->package->snakeName.'_table.php';
+                break;
+
+            case 'lang':
+                return 'lang.php';
+                break;
+
+            case 'view':
+                return 'view.blade.php';
+                break;
+
+            case 'facade':
+                return $this->package->name.'.php';
+                break;
+
+            case 'interface':
+                return $this->package->name.'Interface.php';
+                break;
+
+            case 'abstract':
+                return $this->package->name.'Abstract.php';
+                break;
+
+            case 'controller':
+                return $this->package->name.'Controller.php';
+                break;
+
+            case 'model':
+                return $this->package->name.'Model.php';
+                break;
+
+            case 'middleware':
+                return $this->package->name.'Middleware.php';
+                break;
+
+            case 'route':
+                return 'routes.php';
+                break;
+
+            case 'console':
+                return $this->package->name.'Command.php';
+                break;
+
+            case 'exception':
+                return $this->package->name.'Exception.php';
+                break;
+
+            case 'helper':
+                return 'helpers.php';
+                break;
+
+            default:
+                return '.gitkeep';
+                break;
+        }
+    }
+
+    /**
+     * Format a generic package stub file.
+     *
+     * @param  string  $stub
+     *
+     * @return string
+     */
+    protected function formatPackageStub($stub)
+    {
+        // Placeholder handling
+        $stub = preg_replace_callback('/\h*\{\{\@placeholder\h+(.*)\h+\@end\}\}\h*'.PHP_EOL.'/msU', function ($match) {
+            $parts = explode('|', trim($match[1]));
+            $placeHolderFile = __DIR__.'/placeholders/' .$parts[0]. '.placeholder';
+            $replaceWith = file_exists($placeHolderFile) ? $this->files->get($placeHolderFile) : null;
+
+            if (!isset($parts[1])) {
+                return $replaceWith;
+            } else {
+                if (array_key_exists($parts[1], $this->resourceDirsPath)) {
+                    return $replaceWith;
+                } else {
+                    return null;
+                }
+            }
+        }, $stub);
+
+        // Callback handling
+        $stub = preg_replace_callback('/\{\{\@callback\s*(.*)\s*\@end\}\}/msU', function ($match) {
+            return eval(trim($match[1]));
+        }, $stub);
+
+        // Package properties handling
+        foreach (get_object_vars($this->package) as $key => $value) {
             $stub = str_replace('{{'.snake_case($key).'}}', $value, $stub);
+        }
+
+        // Recursive if stub content have still {{...}} block
+        if (preg_match('/\{\{(.*)\}\}/msU', $stub)) {
+            return $this->formatPackageStub($stub);
         }
 
         return $stub;
     }
 
     /**
-     * Create a workbench directory for the package.
+     * Find the relative file system path between two file system paths
      *
-     * @param  \Jackiedo\Workbench\Package  $package
-     * @param  string  $path
-     * @return string
+     * @param  string  $fromPath  Path to start from
+     * @param  string  $toPath    Path we want to end up in
      *
-     * @throws \InvalidArgumentException
+     * @return string             Path leading from $fromPath to $toPath
      */
-    protected function createDirectory(Package $package, $path)
+    protected function getRelativePath($fromPath, $toPath)
     {
-        $fullPath = $path.'/'.$package->getFullName();
+        $from = explode('/', str_replace(DIRECTORY_SEPARATOR, '/', $fromPath));
+        $to = explode('/', str_replace(DIRECTORY_SEPARATOR, '/', $toPath));
+        $relativePath = '';
 
-        // If the directory doesn't exist, we will go ahead and create the package
-        // directory in the workbench location. We will use this entire package
-        // name when creating the directory to avoid any potential conflicts.
-        if (! $this->files->isDirectory($fullPath)) {
-            $this->files->makeDirectory($fullPath, 0777, true);
+        $i = 0;
 
-            return $fullPath;
+        // Find how far the path is the same
+        while (isset($from[$i]) && isset($to[$i])) {
+            if ($from[$i] != $to[$i]) {
+                break;
+            }
+            $i++;
         }
 
-        throw new \InvalidArgumentException("Package exists.");
-    }
+        $j = count($from) - 1;
 
-    /**
-     * Create source class directories for package
-     *
-     * @param  \Jackiedo\Workbench\Package 	$package
-     * @param  string 						$directory
-     *
-     * @return void
-     */
-    protected function writeSourceClassDirectories(Package $package, $directory)
-    {
-        $classDirectories = array(
-            'Console',
-            'Facades',
-            'Http',
-            'Http/Controllers',
-        );
-
-        foreach ($classDirectories as $classDirectory) {
-            $this->writeSourceClassDirectory($package, $classDirectory, $directory);
+        // Add '../' until the path is the same
+        while ($i <= $j) {
+            if (!empty($from[$j])) {
+                $relativePath .= '../';
+            }
+            $j--;
         }
 
-        $this->writeMainClassFile($package, $directory);
-    }
-
-    /**
-     * Create specify source class directory
-     *
-     * @param  \Jackiedo\Workbench\Package $package
-     * @param  string  $classDirectory
-     * @param  string  $directory
-     *
-     * @return void
-     */
-    protected function writeSourceClassDirectory(Package $package, $classDirectory, $directory)
-    {
-        $classDirectoryPath = $this->createClassDirectory($package, $directory);
-
-        // Once we created the class directory, we will create source
-        // class directories and write class files to the these
-        // directories.
-        $path = $classDirectoryPath.'/'.$classDirectory;
-
-        $this->files->makeDirectory($path, 0777, true);
-
-        switch ($classDirectory) {
-            case 'Facades':
-                $content = $this->formatPackageStub($package, $this->files->get(__DIR__.'/stubs/facades.stub'));
-                $this->files->put($path.'/'.$package->name.'.php', $content);
-                break;
-
-            case 'Http':
-                $content = $this->formatPackageStub($package, $this->files->get(__DIR__.'/stubs/routes.stub'));
-                $this->files->put($path.'/routes.php', $content);
-                break;
-
-            case 'Http/Controllers':
-                $content = $this->formatPackageStub($package, $this->files->get(__DIR__.'/stubs/controller.stub'));
-                $this->files->put($path.'/DemoController.php', $content);
-                break;
-
-            default:
-                break;
+        // Go to folder from where it starts differing
+        while (isset($to[$i])) {
+            if (!empty($to[$i])) {
+                $relativePath .= $to[$i].'/';
+            }
+            $i++;
         }
-    }
 
-    /**
-     * Write main class file for package
-     *
-     * @param  \Jackiedo\Workbench\Package 	$package
-     * @param  string 						$directory
-     *
-     * @return void
-     */
-    protected function writeMainClassFile(Package $package, $directory)
-    {
-        $classDirectoryPath = $this->createClassDirectory($package, $directory);
-
-        $content = $this->formatPackageStub($package, $this->files->get(__DIR__.'/stubs/main.stub'));
-
-        $this->files->put($classDirectoryPath.'/'.$package->name.'.php', $content);
+        // Strip last separator
+        return substr($relativePath, 0, -1);
     }
 }

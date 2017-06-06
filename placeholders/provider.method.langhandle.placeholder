@@ -1,0 +1,25 @@
+
+    /**
+     * Loading and publishing package's translations
+     *
+     * @return void
+     */
+    protected function langHandle()
+    {
+        $packageTranslationsPath = __DIR__.'/{{@callback
+            return $this->getRelativePath($this->namespaceDirPath, $this->resourceDirsPath["lang"]);
+        @end}}';
+
+        $this->loadTranslationsFrom($packageTranslationsPath, '{{lower_name}}');
+
+        $localeLangs = $this->app['files']->directories($packageTranslationsPath);
+
+        $publishes = [];
+
+        foreach ($localeLangs as $localePath) {
+            $localeName = basename($localePath);
+            $publishes[$localePath] = base_path('resources/lang/packages/'.$localeName.'/test-new');
+        }
+
+        $this->publishes($publishes, 'lang');
+    }
