@@ -1,0 +1,8 @@
+<?php
+
+if (! function_exists('{{camel_name}}')) {
+    function {{camel_name}}()
+    {
+        return 'Welcome to function {{camel_name}}() for {{vendor}}\{{name}} package';
+    }
+}

@@ -4,8 +4,29 @@
 [![License](https://poser.pugx.org/jackiedo/workbench/license)](https://packagist.org/packages/jackiedo/workbench)
 
 # Laravel 5 Workbench
+Laravel 5 Workbench bring artisan workbench command (originally from Laravel 4.x) back to Laravel 5+. From now, you will not need to spend too much time building perfect structured packages for Laravel 5+. Let the Laravel 5 Workbench support you in every detail through it's powerful features.
 
-Bring workbench back to Laravel 5+
+# Features
+* Build the standard structure for package.
+* Generate a standard composer.json file for package.
+* Generate a standard Service Provider file for package.
+* Generate some scaffold resources file, such as:
+    * Facade files
+    * Interface files
+    * Abstract files
+    * Exception files
+    * Controller files
+    * Middleware files
+    * Model files
+    * Artisan CLI files
+    * Configuration file
+    * Migration files
+    * Language files
+    * View files
+    * Route file
+    * Helper file
+    * ...
+* Autoload dumping to be able to use your package immediately (after adding Service Provider of your package into `providers` section in `config/app.php` file).
 
 # Overview
 Look at one of the following topics to learn more about Laravel 5 Workbench
@@ -13,6 +34,7 @@ Look at one of the following topics to learn more about Laravel 5 Workbench
 * [Versions and compatibility](#versions-and-compatibility)
 * [Installation](#installation)
 * [Usage](#usage)
+* [Configuration](#configuration)
 * [Other documentation](#other-documentation)
 
 ## Versions and compatibility
@@ -64,8 +86,10 @@ $ composer update
 - On the fourth step, we publish configuration file:
 
 ```shell
-$ php artisan vendor:publish
+$ php artisan vendor:publish --provider="Jackiedo\Workbench\WorkbenchServiceProvider" --force
 ```
+
+> Note: You should use `--force` option in publish command to override configuration file with newest one.
 
 - And the final step is add autoload the workbench to your `bootstrap/autoload.php` file. Put this following code at the very bottom of script.
 
@@ -96,14 +120,18 @@ Now, you can use workbench commands to create your packages same as on Laravel 4
 #### Creating a basic package.
 
 ```shell
-$ php artisan workbench vendor/package
+$ php artisan workbench vendor/name
 ```
 
 #### Creating a package with generating some scaffold resources.
 
 ```shell
-$ php artisan workbench vendor/package --resources
+$ php artisan workbench vendor/name --resources
 ```
+
+## Configuration
+
+> All details are provided in your `config/workbench.php` as comments (you have to run Artisan vendor:publish command before). Please read carefully before use.
 
 ## Other documentation
 

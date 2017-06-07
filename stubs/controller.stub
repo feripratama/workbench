@@ -1,20 +1,36 @@
-<?php namespace {{vendor}}\{{name}}\Http\Controllers;
+<?php namespace {{vendor}}\{{name}}{{@callback
+        $namespaceSuffix = str_replace("/", "\\", $this->getRelativePath($this->namespaceDirPath, $this->resourceDirsPath["controller"]));
+        if (!empty($namespaceSuffix)) {
+            $namespaceSuffix = "\\".$namespaceSuffix;
+        }
+        return $namespaceSuffix;
+    @end}};
 
-use App\Http\Requests;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use {{vendor}}\{{name}}\Facades\{{name}};
+{{@placeholder controller.use.facade|facade @end}}
+{{@placeholder controller.use.model|model @end}}
 
 /**
- * The DemoController facade.
+ * The {{@callback
+        return rtrim($this->buildResourceFileName("controller"), '.php');
+    @end}} class.
  *
- * @package {{vendor}}\{{name}}\Http\Controllers
- * @author {{author}} <{{email}}>
+ * @package {{vendor}}\{{name}}
+ * @author  {{author}} <{{email}}>
  */
-class DemoController extends Controller
+class {{@callback
+        return rtrim($this->buildResourceFileName("controller"), '.php');
+    @end}} extends Controller
 {
     public function demo()
     {
-        return {{name}}::welcome();
+        {{@callback
+            if (array_key_exists('facade', $this->resourceDirsPath)) {
+                return 'return {{name}}::welcome();';
+            } else {
+                return 'return "Welcome to {{vendor}}\{{name}} package";';
+            }
+        @end}}
     }
 }

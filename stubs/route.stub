@@ -1,0 +1,13 @@
+<?php
+
+Route::group(['prefix' => '{{lower_name}}'], function() {
+    Route::get('demo', {{@callback
+            if (array_key_exists('controller', $this->resourceDirsPath)) {
+                return "'".'{{vendor}}\\{{name}}\\'.rtrim(str_replace('/', '\\', $this->getRelativePath($this->namespaceDirPath, $this->buildResourceFilePath('controller'))), '.php').'@demo'."'";
+            } else {
+                return 'function() {
+        return '."'".'Welcome to {{vendor}}\{{name}} package'."'".';
+    }';
+            }
+        @end}});
+});

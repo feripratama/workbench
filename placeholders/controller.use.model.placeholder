@@ -1,0 +1,3 @@
+use {{vendor}}\{{name}}\{{@callback
+    return rtrim(str_replace("/", "\\", $this->getRelativePath($this->namespaceDirPath, $this->buildResourceFilePath("model"))), '.php');
+@end}};
