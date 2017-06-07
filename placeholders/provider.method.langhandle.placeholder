@@ -1,0 +1,18 @@
+
+    /**
+     * Loading and publishing package's translations
+     *
+     * @return void
+     */
+    protected function langHandle()
+    {
+        $packageTranslationsPath = __DIR__.'/{{@callback
+            return $this->getRelativePath($this->namespaceDirPath, $this->resourceDirsPath["lang"]);
+        @end}}';
+
+        $this->loadTranslationsFrom($packageTranslationsPath, '{{lower_name}}');
+
+        $this->publishes([
+            $packageTranslationsPath => base_path('resources/lang/vendor/{{lower_name}}'),
+        ], 'lang');
+    }

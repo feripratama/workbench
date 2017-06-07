@@ -1,0 +1,24 @@
+<?php namespace {{vendor}}\{{name}}{{@callback
+        $namespaceSuffix = str_replace("/", "\\", $this->getRelativePath($this->namespaceDirPath, $this->resourceDirsPath["exception"]));
+        if (!empty($namespaceSuffix)) {
+            $namespaceSuffix = "\\".$namespaceSuffix;
+        }
+        return $namespaceSuffix;
+    @end}};
+
+use Exception;
+
+/**
+ * The {{@callback
+        return rtrim($this->buildResourceFileName("exception"), '.php');
+    @end}} class.
+ *
+ * @package {{vendor}}\{{name}}
+ * @author  {{author}} <{{email}}>
+ */
+class {{@callback
+        return rtrim($this->buildResourceFileName("exception"), '.php');
+    @end}} extends Exception
+{
+    //
+}

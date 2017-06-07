@@ -31,6 +31,13 @@ class WorkbenchMakeCommand extends Command
     protected $creator;
 
     /**
+     * Step of process
+     *
+     * @var integer
+     */
+    protected $step = 0;
+
+    /**
      * Create a new make workbench command instance.
      *
      * @param  \Jackiedo\Workbench\PackageCreator  $creator
@@ -50,9 +57,11 @@ class WorkbenchMakeCommand extends Command
      */
     public function fire()
     {
+        $this->info(PHP_EOL.'>>> Please step by step provide following informations:');
+
         $workbench = $this->runCreator($this->buildPackage());
 
-        $this->info('Package workbench created!');
+        $this->info(PHP_EOL.'>>> Wow! Your package workbench is created and storaged at '.$workbench.PHP_EOL);
 
         $this->callComposerUpdate($workbench);
     }
@@ -66,10 +75,25 @@ class WorkbenchMakeCommand extends Command
     protected function runCreator($package)
     {
         $path = $this->laravel['path.base'].'/workbench';
+        $config = $this->laravel['config']['workbench'];
 
-        $plain = ! $this->option('resources');
+        if (!array_key_exists('point_namespace_to_similar_dir', $config) || !is_bool($config['point_namespace_to_similar_dir'])) {
+            $pointNsToSimilarDir = $this->confirm(++$this->step.'. Do you want PSR-4 autoloading standard for namespace '.$package->vendor.'\\'.$package->name.' in the composer.json file is pointed to the src/'.$package->vendor.'/'.$package->name.' directory (if say no, this will be pointed to the src directory)?', true);
+        } else {
+            $pointNsToSimilarDir = $config['point_namespace_to_similar_dir'];
+        }
 
-        return $this->creator->create($package, $path, $plain);
+        $chosenResources = [];
+        if ($this->option('resources')) {
+            $this->question(' '.++$this->step.'. Which of the following resources would you like to generate?');
+
+            $allResources = $config['resources']['with_namespace'] + $config['resources']['without_namespace'];
+            $chosenResources = $this->askForResources($allResources);
+        }
+
+        $this->info(PHP_EOL.'>>> Thanks for your informations. Package is being generated, please wait...');
+
+        return $this->creator->create($package, $path, $chosenResources, $pointNsToSimilarDir);
     }
 
     /**
@@ -82,7 +106,8 @@ class WorkbenchMakeCommand extends Command
     {
         chdir($path);
 
-        passthru('composer install --dev');
+        // passthru('composer install --dev');
+        passthru('composer dump-autoload');
     }
 
     /**
@@ -98,11 +123,39 @@ class WorkbenchMakeCommand extends Command
 
         $config = $this->laravel['config']['workbench'];
 
-        if (is_null($config['email'])) {
-            throw new \UnexpectedValueException("Please set the author's email in the workbench configuration file.");
+        // Get author name
+        $author_name = (empty($this->option('author-name'))) ? ((empty($config['name'])) ? $this->ask(++$this->step.'. What is your name?') : $config['name']) : $this->option('author-name');
+
+        // Get author email
+        $author_email = (empty($this->option('author-email'))) ? ((empty($config['email'])) ? $this->ask(++$this->step.'. Hi '.$author_name.'! What is your e-mail address?') : $config['email']) : $this->option('author-email');
+
+        // Get description for package
+        $description = $this->ask(++$this->step.'. You can provide a short descripton for your package here if you want:', 'The '.$name.' package');
+
+        // Get structure of package resources
+        $resources_structure = $config['resources'];
+
+        return new Package($vendor, $name, $author_name, $author_email, $description, $resources_structure);
+    }
+
+    /**
+     * Ask for choosing resources
+     *
+     * @param  array $resources
+     *
+     * @return array
+     */
+    protected function askForResources($resources)
+    {
+        $choices = [];
+
+        foreach ($resources as $type => $path) {
+            if ($this->confirm(' - ' .ucfirst(strtolower($type)). '?', true)) {
+                $choices[] = $type;
+            }
         }
 
-        return new Package($vendor, $name, $config['name'], $config['email']);
+        return $choices;
     }
 
     /**
@@ -114,7 +167,13 @@ class WorkbenchMakeCommand extends Command
     {
         $package = $this->argument('package');
 
-        return array_map('studly_case', explode('/', $package, 2));
+        $parsed = array_map('studly_case', explode('/', $package, 2));
+
+        if (!isset($parsed[1]) || empty($parsed[1])) {
+            throw new \InvalidArgumentException("The package argument must be of the form [vendor/name]");
+        }
+
+        return $parsed;
     }
 
     /**
@@ -125,7 +184,7 @@ class WorkbenchMakeCommand extends Command
     protected function getArguments()
     {
         return array(
-            array('package', InputArgument::REQUIRED, 'The name (vendor/name) of the package.'),
+            array('package', InputArgument::REQUIRED, 'The fullname (vendor/name) of the package.'),
         );
     }
 
@@ -138,6 +197,8 @@ class WorkbenchMakeCommand extends Command
     {
         return array(
             array('resources', null, InputOption::VALUE_NONE, 'Create Laravel specific directories.'),
+            array('author-name', null, InputOption::VALUE_OPTIONAL, 'Author\'s name of package.'),
+            array('author-email', null, InputOption::VALUE_OPTIONAL, 'Author\'s email of package.'),
         );
     }
 }

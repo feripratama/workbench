@@ -1,0 +1,5 @@
+        "files": [
+            "src/{{@callback
+	            return $this->getRelativePath($this->srcDirPath, $this->buildResourceFilePath('helper'));
+            @end}}"
+        ],
