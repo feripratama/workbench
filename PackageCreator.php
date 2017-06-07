@@ -537,7 +537,7 @@ class PackageCreator
     protected function formatPackageStub($stub)
     {
         // Placeholder handling
-        $stub = preg_replace_callback('/\h*\{\{\@placeholder\h+(.*)\h+\@end\}\}\h*'.PHP_EOL.'/msU', function ($match) {
+        $stub = preg_replace_callback('/\h*\{\{\@placeholder\h+(.*)\h+\@end\}\}\h*\r*\n+/msU', function ($match) {
             $parts = explode('|', trim($match[1]));
             $placeHolderFile = __DIR__.'/placeholders/' .$parts[0]. '.placeholder';
             $replaceWith = file_exists($placeHolderFile) ? $this->files->get($placeHolderFile) : null;
