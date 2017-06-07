@@ -1,12 +1,13 @@
 <?php namespace {{vendor}}\{{name}};
 
 use Illuminate\Support\ServiceProvider;
+{{@placeholder provider.use.console|console @end}}
 
 /**
- * {{name}}ServiceProvider
+ * The {{name}}ServiceProvider class
  *
  * @package {{vendor}}\{{name}}
- * @author {{author}} <{{email}}>
+ * @author  {{author}} <{{email}}>
  */
 class {{name}}ServiceProvider extends ServiceProvider
 {
@@ -25,62 +26,19 @@ class {{name}}ServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        $packageRoutesPath       = __DIR__ . '/../../routes/demo.php';
-        $packageConfigPath       = __DIR__ . '/../../config/config.php';
-        $packageMigrationsPath   = __DIR__ . '/../../migrations';
-        $packageAssetsPath       = __DIR__ . '/../../resources/assets';
-        $packageTranslationsPath = __DIR__ . '/../../resources/lang';
-        $packageViewsPath        = __DIR__ . '/../../resources/views';
-
-        /**
-         * Loading package's routes and controllers
-         */
-        include $packageRoutesPath;
-
-        /**
-         * Loading and publishing package's config
-         */
-        $appConfigPath = config_path('{{lower_name}}.php');
-
-        $this->mergeConfigFrom($packageConfigPath, '{{lower_name}}');
-
-        $this->publishes([
-            $packageConfigPath => $appConfigPath,
-        ], 'config');
-
-        /**
-         * Loading and publishing package's translations
-         */
-        $this->loadTranslationsFrom($packageTranslationsPath, '{{lower_name}}');
-
-        $this->publishes([
-            $packageTranslationsPath => resource_path('lang/vendor/{{lower_name}}'),
-        ], 'lang');
-
-        /**
-         * Loading and publishing package's views
-         */
-        $this->loadViewsFrom($packageViewsPath, '{{lower_name}}');
-
-        $this->publishes([
-            $packageViewsPath => resource_path('views/vendor/{{lower_name}}'),
-        ], 'views');
-
-        /**
-         * Publishing package's assets (JavaScript, CSS, images...)
-         */
-        $this->publishes([
-            $packageAssetsPath => public_path('vendor/{{lower_name}}'),
-        ], 'public');
-
-        /**
-         * Loading and publishing package's migrations
-         */
-        $this->loadMigrationsFrom($packageMigrationsPath);
-
-        $this->publishes([
-            $packageMigrationsPath => database_path('/migrations')
-        ], 'migrations');
+        {{@callback
+            if ($this->plain) {
+                return '// Code';
+            } else {
+                return '// Bootstrap handles';
+            }
+        @end}}
+        {{@placeholder provider.boot.route|route @end}}
+        {{@placeholder provider.boot.config|config @end}}
+        {{@placeholder provider.boot.lang|lang @end}}
+        {{@placeholder provider.boot.view|view @end}}
+        {{@placeholder provider.boot.asset|asset @end}}
+        {{@placeholder provider.boot.migration|migration @end}}
     }
 
     /**
@@ -93,6 +51,7 @@ class {{name}}ServiceProvider extends ServiceProvider
         $this->app->singleton('{{lower_name}}', function ($app) {
             return new {{name}};
         });
+        {{@placeholder provider.register.console|console @end}}
     }
 
     /**
@@ -102,6 +61,15 @@ class {{name}}ServiceProvider extends ServiceProvider
      */
     public function provides()
     {
-        return ['{{lower_name}}'];
+        return [
+            '{{lower_name}}',
+            {{@placeholder provider.provides.console|console @end}}
+        ];
     }
+    {{@placeholder provider.method.routehandle|route @end}}
+    {{@placeholder provider.method.confighandle|config @end}}
+    {{@placeholder provider.method.langhandle|lang @end}}
+    {{@placeholder provider.method.viewhandle|view @end}}
+    {{@placeholder provider.method.assethandle|asset @end}}
+    {{@placeholder provider.method.migrationhandle|migration @end}}
 }
