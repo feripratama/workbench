@@ -1,0 +1,32 @@
+<?php namespace {{vendor}}\{{name}}{{@callback
+        $namespaceSuffix = str_replace("/", "\\", $this->getRelativePath($this->namespaceDirPath, $this->resourceDirsPath["facade"]));
+        if (!empty($namespaceSuffix)) {
+            $namespaceSuffix = "\\".$namespaceSuffix;
+        }
+        return $namespaceSuffix;
+    @end}};
+
+use Illuminate\Support\Facades\Facade;
+
+/**
+ * The {{@callback
+        return rtrim($this->buildResourceFileName("facade"), '.php');
+    @end}} facade.
+ *
+ * @package {{vendor}}\{{name}}
+ * @author  {{author}} <{{email}}>
+ */
+class {{@callback
+        return rtrim($this->buildResourceFileName("facade"), '.php');
+    @end}} extends Facade
+{
+    /**
+     * Get the registered name of the component.
+     *
+     * @return string
+     */
+    protected static function getFacadeAccessor()
+    {
+        return '{{lower_name}}';
+    }
+}

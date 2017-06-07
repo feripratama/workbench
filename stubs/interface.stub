@@ -1,0 +1,22 @@
+<?php namespace {{vendor}}\{{name}}{{@callback
+        $namespaceSuffix = str_replace("/", "\\", $this->getRelativePath($this->namespaceDirPath, $this->resourceDirsPath["interface"]));
+        if (!empty($namespaceSuffix)) {
+            $namespaceSuffix = "\\".$namespaceSuffix;
+        }
+        return $namespaceSuffix;
+    @end}};
+
+/**
+ * The {{@callback
+        return rtrim($this->buildResourceFileName("interface"), '.php');
+    @end}} interface
+ *
+ * @package {{vendor}}\{{name}}
+ * @author  {{author}} <{{email}}>
+ */
+interface {{@callback
+        return rtrim($this->buildResourceFileName("interface"), '.php');
+    @end}}
+{
+    //
+}

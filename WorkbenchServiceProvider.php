@@ -20,15 +20,14 @@ class WorkbenchServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        $path = config_path('workbench.php');
+        $packageConfigPath = __DIR__.'/Config/config.php';
+        $appConfigPath     = config_path('workbench.php');
+
+        $this->mergeConfigFrom($packageConfigPath, 'workbench');
 
         $this->publishes([
-            __DIR__.'/Config/config.php' => $path,
+            $packageConfigPath => $appConfigPath,
         ], 'config');
-
-        if (file_exists($path)) {
-            $this->mergeConfigFrom($path, 'workbench');
-        }
     }
 
     /**

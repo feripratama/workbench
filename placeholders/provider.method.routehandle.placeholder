@@ -1,0 +1,14 @@
+
+    /**
+     * Loading package routes
+     *
+     * @return void
+     */
+    protected function routeHandle()
+    {
+        if (!$this->app->routesAreCached()) {
+            require __DIR__.'/{{@callback
+                return $this->getRelativePath($this->namespaceDirPath, $this->buildResourceFilePath("route"));
+            @end}}';
+        }
+    }
