@@ -10,6 +10,7 @@ use App\Http\Requests;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 {{@placeholder controller.use.facade|facade @end}}
+{{@placeholder controller.use.model|model @end}}
 
 /**
  * The {{@callback
