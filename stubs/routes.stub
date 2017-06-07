@@ -1,3 +1,0 @@
-<?php
-
-Route::get('{{lower_name}}', '{{vendor}}\{{name}}\Http\Controllers\DemoController@demo');

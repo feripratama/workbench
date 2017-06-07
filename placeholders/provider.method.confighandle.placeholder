@@ -1,0 +1,19 @@
+
+    /**
+     * Loading and publishing package's config
+     *
+     * @return void
+     */
+    protected function configHandle()
+    {
+        $packageConfigPath = __DIR__.'/{{@callback
+            return $this->getRelativePath($this->namespaceDirPath, $this->buildResourceFilePath("config"));
+        @end}}';
+        $appConfigPath     = config_path('{{lower_name}}.php');
+
+        $this->mergeConfigFrom($packageConfigPath, '{{lower_name}}');
+
+        $this->publishes([
+            $packageConfigPath => $appConfigPath,
+        ], 'config');
+    }

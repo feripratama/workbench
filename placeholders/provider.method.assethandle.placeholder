@@ -1,0 +1,16 @@
+
+    /**
+     * Publishing package's assets (JavaScript, CSS, images...)
+     *
+     * @return void
+     */
+    protected function assetHandle()
+    {
+        $packageAssetsPath = __DIR__.'/{{@callback
+            return $this->getRelativePath($this->namespaceDirPath, $this->resourceDirsPath["asset"]);
+        @end}}';
+
+        $this->publishes([
+            $packageAssetsPath => public_path('vendor/{{lower_name}}'),
+        ], 'public');
+    }

@@ -1,0 +1,8 @@
+
+        $this->app->singleton('command.{{lower_name}}', function ($app) {
+            return new {{@callback
+                return rtrim($this->buildResourceFileName("console"), '.php');
+            @end}};
+        });
+
+        $this->commands('command.{{lower_name}}');

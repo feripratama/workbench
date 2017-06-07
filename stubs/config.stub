@@ -1,7 +1,17 @@
 <?php
 
-return array(
+return [
+
+    /*
+    |--------------------------------------------------------------------------
+    | Demo Config
+    |--------------------------------------------------------------------------
+    |
+    | The following config lines are used for development of package
+    | {{vendor}}/{{name}}
+    |
+    */
 
     'key' => 'value'
 
-);
+];

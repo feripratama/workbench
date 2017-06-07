@@ -1,0 +1,57 @@
+<?php namespace {{vendor}}\{{name}}{{@callback
+        $namespaceSuffix = str_replace("/", "\\", $this->getRelativePath($this->namespaceDirPath, $this->resourceDirsPath["console"]));
+        if (!empty($namespaceSuffix)) {
+            $namespaceSuffix = "\\".$namespaceSuffix;
+        }
+        return $namespaceSuffix;
+    @end}};
+
+use Illuminate\Console\Command;
+
+/**
+ * The {{@callback
+        return rtrim($this->buildResourceFileName("console"), '.php');
+    @end}} class.
+ *
+ * @package {{vendor}}\{{name}}
+ * @author  {{author}} <{{email}}>
+ */
+class {{@callback
+        return rtrim($this->buildResourceFileName("console"), '.php');
+    @end}} extends Command
+{
+
+    /**
+     * The name and signature of the console command.
+     *
+     * @var string
+     */
+    protected $signature = '{{lower_vendor}}:{{lower_name}}';
+
+    /**
+     * The console command description.
+     *
+     * @var string
+     */
+    protected $description = 'Demo command for {{vendor}}\{{name}} package';
+
+    /**
+     * Create a new command instance.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        parent::__construct();
+    }
+
+    /**
+     * Execute the console command.
+     *
+     * @return mixed
+     */
+    public function handle()
+    {
+        $this->info('Welcome to command for {{vendor}}\{{name}} package');
+    }
+}

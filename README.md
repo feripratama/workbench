@@ -1,6 +1,6 @@
 # Laravel 5 Workbench
 
-Bring workbench back to Laravel 5+
+Laravel 5 Workbench bring artisan workbench command (originally from Laravel 4.x) back to Laravel 5+. From now, you will not need to spend too much time building perfect structured packages for Laravel 5+. Let the Laravel 5 Workbench support you in every detail through it's powerful features.
 
 # Overview
 Look at one of the following topics to learn more about Laravel 5 Workbench
@@ -20,6 +20,7 @@ Each branch of Laravel 5 Workbench is similarities with each version of Laravel 
 | [5.1](https://github.com/JackieDo/workbench/tree/5.1) | 5.1              |
 | [5.2](https://github.com/JackieDo/workbench/tree/5.2) | 5.2              |
 | [5.3](https://github.com/JackieDo/workbench/tree/5.3) | 5.3              |
+| ...                                                   | ...              |
 
 In each branch we have multiple versions, tagged syntax as `5.0.*`, `5.1.*`, `5.2.*`, `5.3.*`...
 
@@ -58,8 +59,10 @@ $ composer update
 - On the fourth step, we publish configuration file:
 
 ```shell
-$ php artisan vendor:publish
+$ php artisan vendor:publish --provider="Jackiedo\Workbench\WorkbenchServiceProvider" --force
 ```
+
+> Note: You should use `--force` option in publish command to override configuration file with newest one.
 
 - And the final step is add autoload the workbench to your `bootstrap/autoload.php` file. Put this following code at the very bottom of script.
 
@@ -90,13 +93,13 @@ Now, you can use workbench commands to create your packages same as on Laravel 4
 #### Creating a basic package.
 
 ```shell
-$ php artisan workbench vendor/package
+$ php artisan workbench vendor/name
 ```
 
 #### Creating a package with generating some scaffold resources.
 
 ```shell
-$ php artisan workbench vendor/package --resources
+$ php artisan workbench vendor/name --resources
 ```
 
 ## Other documentation
@@ -108,3 +111,4 @@ $ php artisan workbench vendor/package --resources
 - [Laravel 5.1 Package Development](https://laravel.com/docs/5.1/packages)
 - [Laravel 5.2 Package Development](https://laravel.com/docs/5.2/packages)
 - [Laravel 5.3 Package Development](https://laravel.com/docs/5.3/packages)
+- [Laravel 5.4 Package Development](https://laravel.com/docs/5.4/packages)

@@ -1,0 +1,18 @@
+
+    /**
+     * Publishing package's migrations
+     *
+     * @return void
+     */
+    protected function migrationHandle()
+    {
+        $packageMigrationsPath = __DIR__.'/{{@callback
+            return $this->getRelativePath($this->namespaceDirPath, $this->resourceDirsPath["migration"]);
+        @end}}';
+
+        $this->loadMigrationsFrom($packageMigrationsPath);
+
+        $this->publishes([
+            $packageMigrationsPath => database_path('migrations')
+        ], 'migrations');
+    }
