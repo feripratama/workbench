@@ -34,6 +34,7 @@ Look at one of the following topics to learn more about Laravel 5 Workbench
 * [Versions and compatibility](#versions-and-compatibility)
 * [Installation](#installation)
 * [Usage](#usage)
+* [Screenshot](#screenshot)
 * [Configuration](#configuration)
 * [Other documentation](#other-documentation)
 
@@ -128,6 +129,23 @@ $ php artisan workbench vendor/name
 ```shell
 $ php artisan workbench vendor/name --resources
 ```
+
+## Screenshot
+
+> Create package without generating scaffold resources.
+
+![create-without-resources](https://user-images.githubusercontent.com/9862115/26842158-0acb2cc2-4b16-11e7-93fb-d46063c57ef3.png)
+![result-without-resources](https://user-images.githubusercontent.com/9862115/26842412-f3906cce-4b16-11e7-9190-d1e1c6eeeefc.png)
+
+> Create package with generating scaffold resources.
+
+![create-with-resources](https://user-images.githubusercontent.com/9862115/26842286-7aed820c-4b16-11e7-89e6-3feaf16ee623.png)
+![result-with-resources](https://user-images.githubusercontent.com/9862115/26842435-0a4dc2b8-4b17-11e7-9d39-2e1c46373d29.png)
+
+> Create package with generating scaffold resources and point PSR-4 autoloading namespace to the src directory.
+
+![create-with-point-namespace-to-src-dir](https://user-images.githubusercontent.com/9862115/26842343-ad979d28-4b16-11e7-99dc-ece4decdafd4.png)
+![result-with-point-namespace-to-src-dir](https://user-images.githubusercontent.com/9862115/26842459-1dfe6aba-4b17-11e7-9c27-8dcca0bca23a.png)
 
 ## Configuration
 
