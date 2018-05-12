@@ -250,7 +250,12 @@ class PackageCreator
      */
     protected function writeComposerFile()
     {
-        $stub = $this->files->get(__DIR__.'/stubs/composer.stub');
+        if($this->plain){
+            $stub = $this->files->get(__DIR__.'/stubs/composer.stub');
+        }else{
+            $stub = $this->files->get(__DIR__.'/stubs/composer_resources.stub');
+        }
+        
 
         $stub = $this->formatPackageStub($stub);
 

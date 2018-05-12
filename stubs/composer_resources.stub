@@ -27,7 +27,10 @@
         "laravel": {
             "providers": [
                 "{{vendor}}\\{{name}}\\{{name}}ServiceProvider"
-            ]
+            ],
+            "aliases": {
+                "{{name}}": "{{vendor}}\\{{name}}\\Facades\\{{name}}"
+            }
         }
     },    
     "minimum-stability": "stable"
