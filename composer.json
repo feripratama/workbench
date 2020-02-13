@@ -1,6 +1,6 @@
 {
     "name": "jackiedo/workbench",
-    "description": "Bring workbench back to Laravel 5.",
+    "description": "Bring workbench back to Laravel 5+",
     "license": "MIT",
     "authors": [
         {
@@ -13,13 +13,13 @@
         }
     ],
     "require": {
-        "php": ">=5.6.4",
-        "illuminate/filesystem": "~5.4",
-        "illuminate/support": "~5.4",
+        "php": ">=7.0.0",
+        "illuminate/filesystem": "~5.5",
+        "illuminate/support": "~5.5",
         "symfony/finder": "3.*"
     },
     "require-dev": {
-        "illuminate/console": "~5.4"
+        "illuminate/console": "~5.5"
     },
     "autoload": {
         "psr-4": {
@@ -28,7 +28,7 @@
     },
     "extra": {
         "branch-alias": {
-            "dev-master": "5.4-dev"
+            "dev-master": "5.5-dev"
         }
     },
     "minimum-stability": "dev"
