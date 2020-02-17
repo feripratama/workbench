@@ -2,6 +2,7 @@
 
 use Illuminate\Console\Command;
 use Jackiedo\Workbench\Starter;
+use Symfony\Component\Finder\Finder;
 
 class WorkbenchDiscoverCommand extends Command
 {
@@ -27,9 +28,22 @@ class WorkbenchDiscoverCommand extends Command
      */
     public function fire()
     {
+        $finder = new Finder;
         $workbench_path = $this->laravel['path.base'].'/workbench';
 
-        Starter::discoverAllPackages($workbench_path);
+        // We will use the finder to locate all package directories in the workbench
+        // directory, then we will discover each package.
+        $directories = $finder->in($workbench_path)->directories()->depth('== 1')->followLinks();
+
+        foreach ($directories as $directory) {
+            $realPath = $directory->getRealPath();
+            $vendor = basename($directory->getPath());
+            $package = $directory->getBasename();
+
+            if (Starter::discoverPackage($realPath)) {
+                $this->line('Discovered Workbench Package: <fg=green>'.$vendor.'/'.$package.'</>');
+            }
+        }
     }
 
     /**
