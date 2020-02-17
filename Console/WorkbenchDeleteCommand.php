@@ -61,9 +61,8 @@ class WorkbenchDeleteCommand extends Command
             }
 
             Starter::removeDiscoveredPackage($this->package);
+            $this->info('>>> Workbench package "'.$this->package.'" has been deleted.');
         }
-
-        $this->info('>>> Workbench package "'.$this->package.'" has been deleted.');
     }
 
     /**
