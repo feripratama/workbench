@@ -65,7 +65,7 @@ Run the `composer require` command from the terminal on your project source:
 $ composer require jackiedo/workbench:{{laravel-version}}.*
 ```
 
-> Note: The `{{laravel-version}}.*` string above is main version of Laravel that you want to install Laravel Workbench on it. Example, if you want to install this package on Laravel 5.5, you have to set require is `jackiedo/workbench:5.5.*`
+> _Note: The `{{laravel-version}}.*` string above is main version of Laravel that you want to install Laravel Workbench on it. Example, if you want to install this package on Laravel 5.5, you have to set require is `jackiedo/workbench:5.5.*`_
 
 **Step 2 - Add mechanism to autoload service provider (for Laravel 5.4 or earlier only).**
 
@@ -79,7 +79,7 @@ Open `config/app.php` file, and add a new item to the providers array:
 ),
 ```
 
-> Note: If we are using Laravel version 5.5 or later, through the feature `Discovery Packages`, we can skip above step.
+> _Note: If we are using Laravel version 5.5 or later, with the feature `Discovery Packages`, we can skip above step._
 
 **Step 3 - Publish the configuration file.**
 
@@ -89,7 +89,7 @@ From the terminal on your project source, run the command as follow:
 $ php artisan vendor:publish --provider="Jackiedo\Workbench\WorkbenchServiceProvider" --force
 ```
 
-> Note: You should use `--force` option in publish command to override configuration file with newest one.
+> _Note: You should use `--force` option in publish command to override configuration file with newest one._
 
 **Step 4 - Register the workbench package loaders.**
 
@@ -129,13 +129,13 @@ Open `composer.json` file, and add the line `@php artisan workbench:discover` **
 ]
 ```
 
-> Note: If we are using Laravel version 5.4 or earlier, we do not perform the above step.
+> _Note: If we are using Laravel version 5.4 or earlier, we do not perform the above step._
 
 ## Usage
 
 Now, you can use workbench commands to create your packages same as on Laravel 4.2.
 
-> Note: Before you create a package, you should to update `name` and `email` config value in your `config/workbench.php` file.
+> _Note: Before you create a package, you should to update `name` and `email` config value in your `config/workbench.php` file._
 
 #### Creating a basic package.
 
@@ -144,7 +144,7 @@ Syntax:
 $ php artisan workbench:make vendor/name
 ```
 
-> Note: The `vendor/name` string above is the form of your package name. Example: jackiedo/demo-package
+> _Note: The `vendor/name` string above is the form of your package name. Example: `jackiedo/demo-package`_
 
 #### Creating a package with generating some scaffold resources.
 
@@ -187,11 +187,11 @@ $ php artisan workbench:delete vendor/name
 
 ## Configuration
 
-> All details are provided in your `config/workbench.php` as comments (you have to run Artisan vendor:publish command before). Please read carefully before use.
+All details are provided in your `config/workbench.php` as comments (you have to run Artisan vendor:publish command before). Please read carefully before use.
 
 ## Other documentation
 
-> For more documentation about package development, you can visit Official Laravel Documentation pages:
+For more documentation about package development, you can visit Official Laravel Documentation pages:
 
 - [Laravel 4.2 Package Development](https://laravel.com/docs/4.2/packages)
 - [Laravel 5.0 Package Development](https://laravel.com/docs/5.0/packages)
