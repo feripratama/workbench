@@ -21,14 +21,14 @@
                 }
                 return $namespaceSuffix;
             @end}}"
-        },
-        "extra": {
-            "laravel": {
-                {{@placeholder composer.laravel.aliases|facade @end}}
-                "providers": [
-                    "{{vendor}}\\{{name}}\\{{name}}ServiceProvider"
-                ]
-            }
+        }
+    },
+    "extra": {
+        "laravel": {
+            {{@placeholder composer.laravel.aliases|facade @end}}
+            "providers": [
+                "{{vendor}}\\{{name}}\\{{name}}ServiceProvider"
+            ]
         }
     },
     "minimum-stability": "stable"
