@@ -52,8 +52,9 @@ Each branch of Laravel Workbench is similarities with each version of Laravel 5+
 | [5.3](https://github.com/JackieDo/workbench/tree/5.3) | 5.3              |
 | [5.4](https://github.com/JackieDo/workbench/tree/5.4) | 5.4              |
 | [5.5](https://github.com/JackieDo/workbench/tree/5.5) | 5.5              |
+| [5.6](https://github.com/JackieDo/workbench/tree/5.6) | 5.6              |
 
-In each branch we have multiple versions, tagged syntax as `5.0.*`, `5.1.*`, `5.2.*`, `5.3.*`, `5.4.*`, `5.5.*`...
+In each branch we have multiple versions, tagged syntax as `5.0.*`, `5.1.*`, `5.2.*`...
 
 ## Installation
 
@@ -65,7 +66,7 @@ Run the `composer require` command from the terminal on your project source:
 $ composer require jackiedo/workbench:{{laravel-version}}.*
 ```
 
-> _Note: The `{{laravel-version}}.*` string above is main version of Laravel that you want to install Laravel Workbench on it. Example, if you want to install this package on Laravel 5.5, you have to set require is `jackiedo/workbench:5.5.*`_
+> _Note: The `{{laravel-version}}.*` string above is main version of Laravel that you want to install Laravel Workbench on it. Example, if you want to install this package on Laravel 5.6, you have to set require is `jackiedo/workbench:5.6.*`_
 
 **Step 2 - Add mechanism to autoload service provider (for Laravel 5.4 or earlier only).**
 
@@ -161,6 +162,16 @@ During the process of building your package, every time you generate a new class
 $ php artisan workbench:dump-autoload
 ```
 
+#### Manual discover workbench packages
+
+During the process of building your package, every time you change the `extra/laravel` section in `composer.json` file of your package, you should rebuild cached through the following command:
+
+```
+$ php artisan workbench:discover
+```
+
+Or you can use the `composer dump-autoload` command, because we add above command into `post-autoload-dump` section in `composer.json` file of Laravel project during the installation process.
+
 #### Delete an existing workbench package
 
 Syntax:
@@ -200,3 +211,4 @@ For more documentation about package development, you can visit Official Laravel
 - [Laravel 5.3 Package Development](https://laravel.com/docs/5.3/packages)
 - [Laravel 5.4 Package Development](https://laravel.com/docs/5.4/packages)
 - [Laravel 5.5 Package Development](https://laravel.com/docs/5.5/packages)
+- [Laravel 5.6 Package Development](https://laravel.com/docs/5.6/packages)
