@@ -35,14 +35,20 @@ class WorkbenchDiscoverCommand extends Command
         // directory, then we will discover each package.
         $directories = $finder->in($workbench_path)->directories()->depth('== 1')->followLinks();
 
-        foreach ($directories as $directory) {
-            $realPath = $directory->getRealPath();
-            $vendor = basename($directory->getPath());
-            $package = $directory->getBasename();
+        if (iterator_count($directories) > 0) {
+            foreach ($directories as $directory) {
+                $realPath = $directory->getRealPath();
+                $vendor = basename($directory->getPath());
+                $package = $directory->getBasename();
 
-            if (Starter::discoverPackage($realPath)) {
-                $this->line('Discovered Workbench Package: <fg=green>'.$vendor.'/'.$package.'</>');
+                if (Starter::discoverPackage($realPath)) {
+                    $this->line('Discovered Workbench Package: <fg=green>'.$vendor.'/'.$package.'</>');
+                }
             }
+
+            $this->info('Workbench packages manifest generated successfully.');
+        } else {
+            $this->info('No workbench packages were found.');
         }
     }
 
